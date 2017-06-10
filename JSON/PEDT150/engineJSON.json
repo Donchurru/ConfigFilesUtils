@@ -1,0 +1,173 @@
+{
+  "graph": {
+    "label": "PEDT150",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "PEDT150",
+        "metadata": {
+          "tableName": "PEDT150",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_DOCTO",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_SEC_DOCTO",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_VENC_DOCTO",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_EXP_DOCTO",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from PEDT150 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_TIPO_DOCTO_STAN=ref.COD_CVE_REG and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.NUM_VER_PROC=ref.NUM_VER_PROC) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0113'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT150 base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT150 base left join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT = ref.COD_ENT and base.COD_PER=ref.COD_PER and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.NUM_VER_PROC=ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT150 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_TIPO_DOCTO=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0013'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "Sql",
+        "label": "PEDT150_accepted",
+        "metadata": {
+          "tableName": "PEDT150_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Table",
+        "label": "PEDT150_rejected",
+        "metadata": {
+          "tableName": "PEDT150_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      }, {
+        "source": 1,
+        "target": 2,
+        "relation": "both"
+      }, {
+        "source": 1,
+        "target": 4,
+        "relation": "rejected"
+      }, {
+        "source": 2,
+        "target": 3,
+        "relation": "accepted"
+      }, {
+        "source": 2,
+        "target": 4,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

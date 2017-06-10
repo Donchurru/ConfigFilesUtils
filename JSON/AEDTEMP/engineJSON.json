@@ -1,0 +1,291 @@
+{
+  "graph": {
+    "label": "AEDTEMP",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "AEDTEMP",
+        "metadata": {
+          "tableName": "AEDTEMP",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "USR_GEST",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_CANT_ANIO_ACT_EMP",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_CANT_EMP_PER",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_NOM_DISP",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "Concat",
+              "sourceField": "COD_SUB_SEGMT_ORIG",
+              "targetField": "COD_SUB_SEGMT",
+              "metadata": {
+                "mask": "concat('AE-SUBSEG-',COD_CAPITAL)"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_TIPO_PER_GPO = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0016'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_INF_GPOS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_GPO=ref.COD_GPO_ECON and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_TIPO_PER_GPO='G'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_GPO_ECON",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INF_GPOS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_GPO=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_TIPO_PER_GPO='P'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },    
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_CENTROS_OPER_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_SUC=ref.COD_CENTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CENTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_CENTROS_OPER_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_ACT_ESP_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0304'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_SEGMT_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0232'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_ACT_ESP=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0001'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_SEGMT=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0019'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from AEDTEMP base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_SUB_SEGMT=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='1193'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "AEDTEMP_accepted",
+        "metadata": {
+          "tableName": "AEDTEMP_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Table",
+        "label": "AEDTEMP_rejected",
+        "metadata": {
+          "tableName": "AEDTEMP_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      }
+    ]
+  }
+}

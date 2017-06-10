@@ -1,0 +1,150 @@
+{
+  "graph": {
+    "label": "TCDT050",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "TCDT050",
+        "metadata": {
+          "tableName": "TCDT050",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "COD_CENTRO_ORIG",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "DSC_CENTRO_OFIC",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_ENT_ORIG",
+              "targetField": "COD_ENT",
+              "metadata": {
+                "mask": "0000"
+              }
+            },
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_CENTRO_ORIG",
+              "targetField": "COD_CENTRO",
+              "metadata": {
+                "mask": "0000"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from TCDT050 base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "TCDT050_accepted",
+        "metadata": {
+          "tableName": "AEDTEMP_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Table",
+        "label": "TCDT050_rejected",
+        "metadata": {
+          "tableName": "AEDTEMP_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      }
+    ]
+  }
+}

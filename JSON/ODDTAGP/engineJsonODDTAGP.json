@@ -1,0 +1,106 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE ODDTAGP USING com.databricks.spark.csv OPTIONS (path \"${basePath}ODDTAGP.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from ODDTAGP"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_AGRUP_PER"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTAGP_standardized_and_validated",
+				"errorsAlias": "errors_ODDTAGP_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_ENT REFERENCED_COD_ENT from ODDTAGP_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTAGP_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_ODDTAGP_standardized_and_validated_and_domain0"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_MAE_PERSONAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_MAE_PERSONAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from ODDTAGP_standardized_validated_and_domain_temp0 base left outer join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_AGRUP=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTAGP_standardized_validated_and_domain_temp1",
+				"errorsAlias": "errors_ODDTAGP_standardized_and_validated_and_domain1"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "ODDTAGP_domain_validated",
+					"sql": "select * from ODDTAGP_standardized_validated_and_domain_temp1"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "ODDTAGP_errors",
+					"sql": "select * from errors_ODDTAGP_standardized_and_validated union all select * from errors_ODDTAGP_standardized_and_validated_and_domain0 union all select * from errors_ODDTAGP_standardized_and_validated_and_domain1"
+				}
+			]
+		}
+	]
+}

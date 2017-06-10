@@ -1,0 +1,126 @@
+{
+  "graph": {
+    "label": "ODDTAGP",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "ODDTAGP",
+        "metadata": {
+          "tableName": "ODDTAGP",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "COD_AGRUP_PER",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from ODDTAGP base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from ODDTAGP base left join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_AGRUP=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "Sql",
+        "label": "ODDTAGP_accepted",
+        "metadata": {
+          "tableName": "ODDTAGP_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Table",
+        "label": "ODDTAGP_rejected",
+        "metadata": {
+          "tableName": "ODDTAGP_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      }, {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      }, {
+        "source": 1,
+        "target": 4,
+        "relation": "rejected"
+      }, {
+        "source": 2,
+        "target": 3,
+        "relation": "accepted"
+      }, {
+        "source": 2,
+        "target": 4,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

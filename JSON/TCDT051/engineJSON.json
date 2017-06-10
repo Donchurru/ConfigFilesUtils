@@ -1,0 +1,211 @@
+{
+  "graph": {
+    "label": "TCDT051",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "TCDT051",
+        "metadata": {
+          "tableName": "TCDT051",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_ENT_ORIG",
+              "targetField": "COD_ENT",
+              "metadata": {
+                "mask": "0000"
+              }
+            },
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_CENTRO_GRAL_ORIG",
+              "targetField": "COD_CENTRO_GRAL",
+              "metadata": {
+                "mask": "0000"
+              }
+            },
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_CENTRO_SUP_ORIG",
+              "targetField": "COD_CENTRO_SUP",
+              "metadata": {
+                "mask": "0000"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from TCDT051 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_AGRUP=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0715'",
+              "actor": {
+                "id": "3.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from TCDT051 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_TIPO_NIVEL=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0014'",
+              "actor": {
+                "id": "3.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from TCDT051 base left join HE1_MX_CAT_ENT_FINAN_DRO  ref on (base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO "
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from TCDT051 base left join HE1_MX_CAT_CENTROS_OPER_DRO  ref on (base.COD_ENT=ref.COD_ENT and base.COD_CENTRO_GRAL=ref.COD_CENTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CENTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_CENTROS_OPER_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from TCDT051 base left join HE1_MX_CAT_CENTROS_OPER_DRO  ref on (base.COD_ENT=ref.COD_ENT and base.COD_CENTRO_SUP=ref.COD_CENTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CENTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_CENTROS_OPER_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "TCDT051_accepted",
+        "metadata": {
+          "tableName": "TCDT051_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Table",
+        "label": "TCDT051_rejected",
+        "metadata": {
+          "tableName": "TCDT051_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "both"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "accepted"
+      },
+      {
+        "source": 2,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

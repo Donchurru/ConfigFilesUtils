@@ -1,0 +1,52 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE TCDT040 USING com.databricks.spark.csv OPTIONS (path \"${basePath}TCDT040.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from TCDT040"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_ENT_ORIG"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "DSC_ENT"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				},
+				{
+					"type": "Standardization",
+					"standardizations": [
+						{
+							"type": "PadLeft",
+							"sourceField": "COD_ENT_ORIG",
+							"targetField": "COD_ENT",
+							"metadata": {
+								"mask": "0000"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT040_standardized_and_validated",
+				"errorsAlias": "errors_TCDT040_standardized_and_validated"
+			},
+			"afterAll": []
+		}
+	]
+}

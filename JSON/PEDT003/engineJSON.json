@@ -1,0 +1,323 @@
+{
+  "graph": {
+    "label": "PEDT003",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "PEDT003",
+        "metadata": {
+          "tableName": "PEDT003",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_SEC_IDEN_DOM",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_VERIF",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ALTA_REG",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "Concat",
+              "sourceField": "COD_CIUDAD",
+              "targetField": "COD_LOCAL_ORIG",
+              "metadata": {
+                "mask": "concat( trim(PECODPRO),trim(PENOMLOC))"
+              }
+            },
+            {
+              "type": "Concat",
+              "sourceField": "COD_CIUDAD",
+              "targetField": "COD_LOCAL_STAND",
+              "metadata": {
+                "mask": "concat(trim(PECODPAI),trim(PECODPRO),trim(PECODPRO),trim(PENOMLOC))"
+              }
+            },
+            {
+              "type": "Substr",
+              "sourceField": "COD_POSTAL_ORIG",
+              "targetField": "COD_POSTAL",
+              "metadata": {
+                "mask": "substr(PECODPOS,4,5)"
+              }
+            },
+            {
+              "type": "Concat",
+              "sourceField": "COD_EDO_ORIG",
+              "targetField": "COD_EDO_STAND",
+              "metadata": {
+                "mask": "concat(trim(PECODPAI),trim(PECODPRO))"
+              }
+            },
+            {
+              "type": "Substr",
+              "sourceField": "TXT_INF_ADIC",
+              "targetField": "COD_TIPO_ASENT",
+              "metadata": {
+                "mask": "substr(PEOBSERV,31,2)"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_PER=ref.COD_PER)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_TIPO_DOM_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0282'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_EDO_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0009' and base.PETIPDOM not in ('ELE', 'PLS', 'TWT', 'FBK')",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PAIS_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0112' and base.PETIPDOM not in ('ELE', 'PLS', 'TWT', 'FBK')",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_LOCAL_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0507' and base.PETIPDOM not in ('ELE', 'PLS', 'TWT', 'FBK')",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_TIPO_DOM = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0012'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_PAIS = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0007' and base.PETIPDOM not in ('ELE', 'PLS', 'TWT', 'FBK')",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_TIPO_ASENT=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0018' and base.PETIPDOM not in ('ELE', 'PLS', 'TWT', 'FBK')",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT003 base left join VIS_COD_POSTAL ref on (base.COD_POSTAL = ref.COD_POSTAL and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC) where base.PETIPDOM not in ('ELE', 'PLS', 'TWT', 'FBK')",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "PEDT003_accepted",
+        "metadata": {
+          "tableName": "PEDT003_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Table",
+        "label": "PEDT003_rejected",
+        "metadata": {
+          "tableName": "PEDT003_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      }
+    ]
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "graph": {
+    "label": "TCDT081",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "TCDT081",
+        "metadata": {
+          "tableName": "TCDT081",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_ENT_ORIG",
+              "targetField": "COD_ENT",
+              "metadata": {
+                "mask": "0000"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_CAMB_DIVISA",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "VAL_TIPO_CAMB_COMP",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "VAL_TIPO_CAMB_VEND",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "select * from TCDT081 base left join HE1_MX_CAT_DIVISAS_DRO ref on (base.COD_DIVISA_ORIGEN =ref.COD_DIVISA and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.01",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_DIVISA",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_DIVISAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "select * from TCDT081 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.COD_TIPO_COTIZ=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC) where ref.COD_CATALOGO=0011",
+              "actor": {
+                "id": "3.02",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "select * from TCDT081 base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.03",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "TCDT081_accepted",
+        "metadata": {
+          "tableName": "TCDT081_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Sql",
+        "label": "TCDT081_rejected",
+        "metadata": {
+          "tableName": "TCDT081_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

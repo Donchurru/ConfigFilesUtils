@@ -1,0 +1,212 @@
+{
+  "graph": {
+    "label": "ODDTLIB",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "ODDTLIB",
+        "metadata": {
+          "tableName": "ODDTLIB",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "select * from ODDTLIB base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.01",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from ODDTLIB base left join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.02",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from ODDTLIB base left join HE1_MX_MAE_BPRIV_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base. COD_PER_OPICS=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.03",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_BPRIV_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from ODDTLIB base left join HE1_MX_MAE_FACT_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_FACT=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.04",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_FACT_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from ODDTLIB base left join VIS_PERSONA_MDR ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_MDR=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.05",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "VIS_PERSONA_MDR"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from ODDTLIB base left join VIS_PERSONA_SOFIA ref on (base.COD_ENT=ref.COD_ENT and base. COD_PER_SOFIA =ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.06",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "VIS_PERSONA_SOFIA"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "PadLeft",
+              "sourceField": "COD_PER_SOFIA_ORIG",
+              "targetField": "COD_PER_SOFIA",
+              "metadata": {
+                "mask": "DECIMAL(10,0)"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "ODDTLIB_accepted",
+        "metadata": {
+          "tableName": "ODDTLIB_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Table",
+        "label": "ODDTAGP_rejected",
+        "metadata": {
+          "tableName": "ODDTAGP_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      }
+    ]
+  }
+}

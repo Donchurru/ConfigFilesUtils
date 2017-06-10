@@ -1,0 +1,158 @@
+{
+  "graph": {
+    "label": "TCDTGEN",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "TCDTGEN",
+        "metadata": {
+          "tableName": "TCDTGEN",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "COD_TAB_GEN",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "VCOD_CVE_REG_ORIG",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "Trim",
+              "sourceField": "COD_CVE_REG_ORIG",
+              "targetField": "COD_CVE_REG",
+              "metadata": {
+                "mask": ""
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "select * from TCDTGEN base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.01",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "select * from TCDTGEN base left join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_SIGLA_IDIOMA=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO=0021",
+              "actor": {
+                "id": "3.02",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "Sql",
+        "label": "TCDTGEN_accepted",
+        "metadata": {
+          "tableName": "TCDTGEN_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Table",
+        "label": "TCDTGEN_rejected",
+        "metadata": {
+          "tableName": "TCDTGEN_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

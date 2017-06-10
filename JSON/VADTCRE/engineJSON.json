@@ -1,0 +1,240 @@
+{
+  "graph": {
+    "label": "VADTCRE",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "VADTCRE",
+        "metadata": {
+          "tableName": "VADTCRE",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_CALIF",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "NUM_SEC",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_EDO_FINAN",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_BAJA",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            },
+            {
+              "type": "ConditionalValidation",
+              "fieldName": "NUM_PORC_PROB_INCUM",
+              "restriction": [
+                {
+                  "condition":"DECIMAL(5,7)"
+                }]
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Actor",
+        "label": "Standarizer",
+        "metadata": {
+          "type": "Standardization",
+          "standardizations": [
+            {
+              "type": "Concat",
+              "sourceField": "COD_NIVEL_ORIG",
+              "targetField": "COD_NIVEL",
+              "metadata": {
+                "mask": "concat('GS',SUBSTR(NIV_VALORACI,2,2))"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+             {
+              "sql": "Select * from VADTCRE base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "3.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from VADTCRE base left join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "3.02",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PER",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from VADTCRE base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_TIPO_BAJA=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)  where FCH_BAJA <> '0001-01-01' and COD_SIGLA_IDIOMA='E' and COD_TAB_GEN='0619' ",
+              "actor": {
+                "id": "3.03",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from VADTCRE base left join HE1_MX_CAT_COD_GRALS_VAL_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_MODELO=ref. COD_CLAVE_REG and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CAT=’MVA’",
+              "actor": {
+                "id": "3.04",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CLAVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_COD_GRALS_VAL_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from VADTCRE base left join HE1_MX_CAT_COD_GRALS_VAL_DRO ref on (base.COD_ENT=ref.COD_ENT and base. COD_MOTIV_AJUST_MOD=ref. COD_CLAVE_REG and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CAT=’MAJ’",
+              "actor": {
+                "id": "3.05",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CLAVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_COD_GRALS_VAL_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from VADTCRE base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.COD_NIVEL=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC ) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0717'",
+              "actor": {
+                "id": "3.06",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_NIVEL",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Sql",
+        "label": "VADTCRE_accepted",
+        "metadata": {
+          "tableName": "VADTCRE_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "5",
+        "type": "Table",
+        "label": "VADTCRE_rejected",
+        "metadata": {
+          "tableName": "VADTCRE_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 1,
+        "target": 5,
+        "relation": "rejected"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "both"
+      },
+      {
+        "source": 3,
+        "target": 4,
+        "relation": "accepted"
+      },
+      {
+        "source": 3,
+        "target": 5,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

@@ -1,0 +1,157 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE TCDT081 USING com.databricks.spark.csv OPTIONS (path \"${basePath}TCDT081.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from TCDT081"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_CAMB_DIVISA"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "VAL_TIPO_CAMB_COMP"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "VAL_TIPO_CAMB_VEND"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				},
+				{
+					"type": "Standardization",
+					"standardizations": [
+						{
+							"type": "PadLeft",
+							"sourceField": "COD_ENT_ORIG",
+							"targetField": "COD_ENT",
+							"metadata": {
+								"mask": "0000"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT081_standardized_and_validated",
+				"errorsAlias": "errors_TCDT081_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_DIVISAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_DIVISAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select base.*, ref.COD_DIVISA REFERENCED_COD_DIVISA from TCDT081_standardized_and_validated base left outer join HE1_MX_CAT_DIVISAS_DRO ref on (base.COD_DIVISA_ORIGEN =ref.COD_DIVISA and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_DIVISA",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_DIVISAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT081_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_TCDT081_standardized_and_validated_and_domain0"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from TCDT081_standardized_validated_and_domain_temp0 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.COD_TIPO_COTIZ=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC) where ref.COD_CATALOGO=0011"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT081_standardized_validated_and_domain_temp1",
+				"errorsAlias": "errors_TCDT081_standardized_and_validated_and_domain1"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select base.*, ref.COD_ENT REFERENCED_COD_ENT from TCDT081_standardized_validated_and_domain_temp1 base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT081_standardized_validated_and_domain_temp2",
+				"errorsAlias": "errors_TCDT081_standardized_and_validated_and_domain2"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "TCDT081_domain_validated",
+					"sql": "select * from TCDT081_standardized_validated_and_domain_temp2"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "TCDT081_errors",
+					"sql": "select * from errors_TCDT081_standardized_and_validated union all select * from errors_TCDT081_standardized_and_validated_and_domain0 union all select * from errors_TCDT081_standardized_and_validated_and_domain1 union all select * from errors_TCDT081_standardized_and_validated_and_domain2"
+				}
+			]
+		}
+	]
+}

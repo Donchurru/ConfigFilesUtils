@@ -1,0 +1,88 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE VADTCOD USING com.databricks.spark.csv OPTIONS (path \"${basePath}VADTCOD.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from VADTCOD"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_CAT"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_CLAVE_REG"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "DSC_GRAL_LARGA_COD"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "DSC_GRAL_CORTA_COD"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCOD_standardized_and_validated",
+				"errorsAlias": "errors_VADTCOD_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_ENT REFERENCED_COD_ENT from VADTCOD_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCOD_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_VADTCOD_standardized_and_validated_and_domain0"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "VADTCOD_domain_validated",
+					"sql": "select * from VADTCOD_standardized_validated_and_domain_temp0"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "VADTCOD_errors",
+					"sql": "select * from errors_VADTCOD_standardized_and_validated union all select * from errors_VADTCOD_standardized_and_validated_and_domain0"
+				}
+			]
+		}
+	]
+}

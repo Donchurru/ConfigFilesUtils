@@ -1,0 +1,89 @@
+{
+  "graph": {
+    "label": "TCDT080",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "TCDT080",
+        "metadata": {
+          "tableName": "TCDT080",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "COD_DIVISA",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "DSC_NOMB_DIVISA",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "DSC_NOMB_VERN_DIVISA",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "Sql",
+        "label": "TCDT080_accepted",
+        "metadata": {
+          "tableName": "TCDT080_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "Table",
+        "label": "TCDT080_rejected",
+        "metadata": {
+          "tableName": "TCDT080_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      },
+      {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      },
+      {
+        "source": 2,
+        "target": 3,
+        "relation": "rejected"
+      }
+    ]
+  }
+}

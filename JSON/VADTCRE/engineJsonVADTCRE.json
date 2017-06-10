@@ -1,0 +1,255 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE VADTCRE USING com.databricks.spark.csv OPTIONS (path \"${basePath}VADTCRE.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from VADTCRE"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_CALIF"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "NUM_SEC"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_EDO_FINAN"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_BAJA"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						},
+						{
+							"type": "ConditionalValidation",
+							"fieldName": "NUM_PORC_PROB_INCUM"
+						}
+					]
+				},
+				{
+					"type": "Standardization",
+					"standardizations": [
+						{
+							"type": "Concat",
+							"sourceField": "COD_NIVEL_ORIG",
+							"targetField": "COD_NIVEL",
+							"metadata": {
+								"mask": "concat('GS',SUBSTR(NIV_VALORACI,2,2))"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_and_validated",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_ENT REFERENCED_COD_ENT from VADTCRE_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated_and_domain0"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_MAE_PERSONAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_MAE_PERSONAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from VADTCRE_standardized_validated_and_domain_temp0 base left outer join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_validated_and_domain_temp1",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated_and_domain1"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from VADTCRE_standardized_validated_and_domain_temp1 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_TIPO_BAJA=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)  where FCH_BAJA <> '0001-01-01' and COD_SIGLA_IDIOMA='E' and COD_TAB_GEN='0619' "
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_validated_and_domain_temp2",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated_and_domain2"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_COD_GRALS_VAL_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_COD_GRALS_VAL_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CLAVE_REG REFERENCED_COD_CLAVE_REG from VADTCRE_standardized_validated_and_domain_temp2 base left outer join HE1_MX_CAT_COD_GRALS_VAL_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_MODELO=ref. COD_CLAVE_REG and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CAT=’MVA’"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CLAVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_COD_GRALS_VAL_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_validated_and_domain_temp3",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated_and_domain3"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_COD_GRALS_VAL_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_COD_GRALS_VAL_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CLAVE_REG REFERENCED_COD_CLAVE_REG from VADTCRE_standardized_validated_and_domain_temp3 base left outer join HE1_MX_CAT_COD_GRALS_VAL_DRO ref on (base.COD_ENT=ref.COD_ENT and base. COD_MOTIV_AJUST_MOD=ref. COD_CLAVE_REG and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CAT=’MAJ’"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CLAVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_COD_GRALS_VAL_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_validated_and_domain_temp4",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated_and_domain4"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_NIVEL REFERENCED_COD_NIVEL from VADTCRE_standardized_validated_and_domain_temp4 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.COD_NIVEL=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC ) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0717'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_NIVEL",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "VADTCRE_standardized_validated_and_domain_temp5",
+				"errorsAlias": "errors_VADTCRE_standardized_and_validated_and_domain5"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "VADTCRE_domain_validated",
+					"sql": "select * from VADTCRE_standardized_validated_and_domain_temp5"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "VADTCRE_errors",
+					"sql": "select * from errors_VADTCRE_standardized_and_validated union all select * from errors_VADTCRE_standardized_and_validated_and_domain0 union all select * from errors_VADTCRE_standardized_and_validated_and_domain1 union all select * from errors_VADTCRE_standardized_and_validated_and_domain2 union all select * from errors_VADTCRE_standardized_and_validated_and_domain3 union all select * from errors_VADTCRE_standardized_and_validated_and_domain4 union all select * from errors_VADTCRE_standardized_and_validated_and_domain5"
+				}
+			]
+		}
+	]
+}

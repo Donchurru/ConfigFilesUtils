@@ -1,0 +1,234 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE ODDTLIB USING com.databricks.spark.csv OPTIONS (path \"${basePath}ODDTLIB.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from ODDTLIB"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				},
+				{
+					"type": "Standardization",
+					"standardizations": [
+						{
+							"type": "PadLeft",
+							"sourceField": "COD_PER_SOFIA_ORIG",
+							"targetField": "COD_PER_SOFIA",
+							"metadata": {
+								"mask": "DECIMAL(10,0)"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select base.*, ref.COD_ENT REFERENCED_COD_ENT from ODDTLIB_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_ODDTLIB_standardized_and_validated_and_domain0"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_MAE_PERSONAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_MAE_PERSONAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from ODDTLIB_standardized_validated_and_domain_temp0 base left outer join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_validated_and_domain_temp1",
+				"errorsAlias": "errors_ODDTLIB_standardized_and_validated_and_domain1"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_MAE_BPRIV_PERSONAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_MAE_BPRIV_PERSONAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from ODDTLIB_standardized_validated_and_domain_temp1 base left outer join HE1_MX_MAE_BPRIV_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base. COD_PER_OPICS=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "HE1_MX_MAE_BPRIV_PERSONAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_validated_and_domain_temp2",
+				"errorsAlias": "errors_ODDTLIB_standardized_and_validated_and_domain2"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_MAE_FACT_PERSONAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_MAE_FACT_PERSONAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from ODDTLIB_standardized_validated_and_domain_temp2 base left outer join HE1_MX_MAE_FACT_PERSONAS_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_FACT=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "HE1_MX_MAE_FACT_PERSONAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_validated_and_domain_temp3",
+				"errorsAlias": "errors_ODDTLIB_standardized_and_validated_and_domain3"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE VIS_PERSONA_MDR USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}VIS_PERSONA_MDR.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from ODDTLIB_standardized_validated_and_domain_temp3 base left outer join VIS_PERSONA_MDR ref on (base.COD_ENT=ref.COD_ENT and base.COD_PER_MDR=ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "VIS_PERSONA_MDR"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_validated_and_domain_temp4",
+				"errorsAlias": "errors_ODDTLIB_standardized_and_validated_and_domain4"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE VIS_PERSONA_SOFIA USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}VIS_PERSONA_SOFIA.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from ODDTLIB_standardized_validated_and_domain_temp4 base left outer join VIS_PERSONA_SOFIA ref on (base.COD_ENT=ref.COD_ENT and base. COD_PER_SOFIA =ref.COD_PER and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "VIS_PERSONA_SOFIA"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "ODDTLIB_standardized_validated_and_domain_temp5",
+				"errorsAlias": "errors_ODDTLIB_standardized_and_validated_and_domain5"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "ODDTLIB_domain_validated",
+					"sql": "select * from ODDTLIB_standardized_validated_and_domain_temp5"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "ODDTLIB_errors",
+					"sql": "select * from errors_ODDTLIB_standardized_and_validated union all select * from errors_ODDTLIB_standardized_and_validated_and_domain0 union all select * from errors_ODDTLIB_standardized_and_validated_and_domain1 union all select * from errors_ODDTLIB_standardized_and_validated_and_domain2 union all select * from errors_ODDTLIB_standardized_and_validated_and_domain3 union all select * from errors_ODDTLIB_standardized_and_validated_and_domain4 union all select * from errors_ODDTLIB_standardized_and_validated_and_domain5"
+				}
+			]
+		}
+	]
+}

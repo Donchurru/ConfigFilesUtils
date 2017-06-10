@@ -1,0 +1,101 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE TCDT050 USING com.databricks.spark.csv OPTIONS (path \"${basePath}TCDT050.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from TCDT050"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_CENTRO_ORIG"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "DSC_CENTRO_OFIC"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				},
+				{
+					"type": "Standardization",
+					"standardizations": [
+						{
+							"type": "PadLeft",
+							"sourceField": "COD_ENT_ORIG",
+							"targetField": "COD_ENT",
+							"metadata": {
+								"mask": "0000"
+							}
+						},
+						{
+							"type": "PadLeft",
+							"sourceField": "COD_CENTRO_ORIG",
+							"targetField": "COD_CENTRO",
+							"metadata": {
+								"mask": "0000"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT050_standardized_and_validated",
+				"errorsAlias": "errors_TCDT050_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_ENT REFERENCED_COD_ENT from TCDT050_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT050_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_TCDT050_standardized_and_validated_and_domain0"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "TCDT050_domain_validated",
+					"sql": "select * from TCDT050_standardized_validated_and_domain_temp0"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "TCDT050_errors",
+					"sql": "select * from errors_TCDT050_standardized_and_validated union all select * from errors_TCDT050_standardized_and_validated_and_domain0"
+				}
+			]
+		}
+	]
+}

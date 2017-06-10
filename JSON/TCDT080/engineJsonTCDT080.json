@@ -1,0 +1,43 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE TCDT080 USING com.databricks.spark.csv OPTIONS (path \"${basePath}TCDT080.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from TCDT080"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_DIVISA"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "DSC_NOMB_DIVISA"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "DSC_NOMB_VERN_DIVISA"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "TCDT080_standardized_and_validated",
+				"errorsAlias": "errors_TCDT080_standardized_and_validated"
+			},
+			"afterAll": []
+		}
+	]
+}

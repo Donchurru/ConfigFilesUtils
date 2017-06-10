@@ -1,0 +1,170 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE GFDTCLI USING com.databricks.spark.csv OPTIONS (path \"${basePath}GFDTCLI.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from GFDTCLI"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_GRADO_FEVE"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_BAJA"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "GFDTCLI_standardized_and_validated",
+				"errorsAlias": "errors_GFDTCLI_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_ENT REFERENCED_COD_ENT from GFDTCLI_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "GFDTCLI_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_GFDTCLI_standardized_and_validated_and_domain0"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_MAE_PERSONAS_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_MAE_PERSONAS_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_PER REFERENCED_COD_PER from GFDTCLI_standardized_validated_and_domain_temp0 base left outer join HE1_MX_MAE_PERSONAS_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_PER = ref.COD_PER)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_PER",
+							"metadata": {
+								"referenceTable": "HE1_MX_MAE_PERSONAS_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "GFDTCLI_standardized_validated_and_domain_temp1",
+				"errorsAlias": "errors_GFDTCLI_standardized_and_validated_and_domain1"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from GFDTCLI_standardized_validated_and_domain_temp1 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_GRADO_FEVE=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_TAB_GEN='0608' and ref.COD_SIGLA_IDIOMA='E'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "GFDTCLI_standardized_validated_and_domain_temp2",
+				"errorsAlias": "errors_GFDTCLI_standardized_and_validated_and_domain2"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from GFDTCLI_standardized_validated_and_domain_temp2 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_EDO_FEVE=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0005'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "GFDTCLI_standardized_validated_and_domain_temp3",
+				"errorsAlias": "errors_GFDTCLI_standardized_and_validated_and_domain3"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "GFDTCLI_domain_validated",
+					"sql": "select * from GFDTCLI_standardized_validated_and_domain_temp3"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "GFDTCLI_errors",
+					"sql": "select * from errors_GFDTCLI_standardized_and_validated union all select * from errors_GFDTCLI_standardized_and_validated_and_domain0 union all select * from errors_GFDTCLI_standardized_and_validated_and_domain1 union all select * from errors_GFDTCLI_standardized_and_validated_and_domain2 union all select * from errors_GFDTCLI_standardized_and_validated_and_domain3"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,953 @@
+{
+	"steps": [
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE PEDT001 USING com.databricks.spark.csv OPTIONS (path \"${basePath}PEDT001.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "select * from PEDT001"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_PER"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "TXT_PRIM_APELL"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "TXT_NOMB_RAZON_SOC"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "COD_CANAL_CAPT_ORIG"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ALTA_REG"
+						},
+						{
+							"type": "Mandatory",
+							"fieldName": "FCH_ULT_ACT_OPER"
+						}
+					]
+				},
+				{
+					"type": "Standardization",
+					"standardizations": [
+						{
+							"type": "Concat",
+							"sourceField": "TXT_PRIM_APELL",
+							"targetField": "TXT_NOMB_COMP_RAZON_SOC",
+							"metadata": {
+								"mask": "concat(trim(PEPRIAPE),' ',trim(PESEGAPE),' ',trim(PENOMPER))"
+							}
+						},
+						{
+							"type": "Concat",
+							"sourceField": "COD_CANAL_CAPT_ORIG",
+							"targetField": "COD_CANAL_CAPT",
+							"metadata": {
+								"mask": "concat('C',trim(PECANCAP))"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_and_validated",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_ENT_FINAN_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_ENT_FINAN_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_ENT REFERENCED_COD_ENT from PEDT001_standardized_and_validated base left outer join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_ENT",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp0",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain0"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp0 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_TIPO_DOCTO_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0113'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp1",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain1"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_CENTROS_OPER_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_CENTROS_OPER_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CENTRO REFERENCED_COD_CENTRO from PEDT001_standardized_validated_and_domain_temp1 base left outer join HE1_MX_CAT_CENTROS_OPER_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_SUC=ref.COD_CENTRO)"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CENTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_CENTROS_OPER_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp2",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain2"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp2 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_EDO_CIVIL=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0116' and base.COD_TIPO_PER='F'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp3",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain3"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp3 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_SEXO_PER = ref.COD_CVE_RGTRO) where base.COD_TIPO_PER = 'F' and ref.COD_CATALOGO = '0010'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp4",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain4"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp4 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_TIPO_PER = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0017'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp5",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain5"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp5 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PAIS_NAC_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0112'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp6",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain6"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp6 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_NAC_PER_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0112'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp7",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain7"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp7 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_PAIS_RES_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0112'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp8",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain8"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp8 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_ACT_GEN=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0230'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp9",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain9"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp9 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_ACT_ESP_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0304'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp10",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain10"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp10 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_FOR_JUR=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0231' and base.COD_TIPO_PER='J'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp11",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain11"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp11 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_UNID_NEG_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0232'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp12",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain12"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp12 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_SEC_CONT_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0296'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp13",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain13"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp13 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_EDO_PER=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0275'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp14",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain14"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp14 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_COND_PER_ORIG=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0274'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp15",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain15"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp15 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.FLG_IND_INTRA_GPO = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0020'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp16",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain16"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp16 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_SUB_CLAS_INTRA_GPO=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0344' and base.FLG_IND_INTRA_GPO='S'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp17",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain17"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp17 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.FLG_ACT_EMP = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0020'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp18",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain18"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp18 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_CAL_MIGR=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0345'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp19",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain19"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp19 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_TIPO_DOCTO = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0013'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp20",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain20"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_TAB_CORP_ALTAIR_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_TAB_CORP_ALTAIR_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_REG REFERENCED_COD_CVE_REG from PEDT001_standardized_validated_and_domain_temp20 base left outer join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ENT=ref.COD_ENT and base.COD_CANAL_CAPT=ref.COD_CVE_REG and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0347'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_REG",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp21",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain21"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp21 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_PAIS_NAC = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0007'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp22",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain22"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp22 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_NAC_PER = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0007'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp23",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain23"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp23 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_PAIS_RES = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0007'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp24",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain24"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp24 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_ACT_ESP = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0001'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp25",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain25"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp25 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_UNID_NEG = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0019'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp26",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain26"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp26 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_SEC_CONT = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0009'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp27",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain27"
+			},
+			"afterAll": []
+		},
+		{
+			"beforeAll": [
+				{
+					"type": "PlainSql",
+					"sql": "CREATE TEMPORARY TABLE HE1_MX_CAT_INTERNO_DRO USING com.databricks.spark.csv OPTIONS (path \"${basePathDomain}HE1_MX_CAT_INTERNO_DRO.csv\", header \"true\", inferSchema \"false\")"
+				}
+			],
+			"source": {
+				"sql": "Select base.*, ref.COD_CVE_RGTRO REFERENCED_COD_CVE_RGTRO from PEDT001_standardized_validated_and_domain_temp27 base left outer join HE1_MX_CAT_INTERNO_DRO ref on (base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC and base.COD_COND_PER = ref.COD_CVE_RGTRO) where ref.COD_CATALOGO = '0002'"
+			},
+			"actorsConfig": [
+				{
+					"type": "Validation",
+					"validations": [
+						{
+							"type": "Mandatory",
+							"fieldName": "REFERENCED_COD_CVE_RGTRO",
+							"metadata": {
+								"referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+							}
+						}
+					]
+				}
+			],
+			"target": {
+				"resultsAlias": "PEDT001_standardized_validated_and_domain_temp28",
+				"errorsAlias": "errors_PEDT001_standardized_and_validated_and_domain28"
+			},
+			"afterAll": [
+				{
+					"type": "TempTable",
+					"tableName": "PEDT001_domain_validated",
+					"sql": "select * from PEDT001_standardized_validated_and_domain_temp28"
+				},
+				{
+					"type": "TempTable",
+					"tableName": "PEDT001_errors",
+					"sql": "select * from errors_PEDT001_standardized_and_validated union all select * from errors_PEDT001_standardized_and_validated_and_domain0 union all select * from errors_PEDT001_standardized_and_validated_and_domain1 union all select * from errors_PEDT001_standardized_and_validated_and_domain2 union all select * from errors_PEDT001_standardized_and_validated_and_domain3 union all select * from errors_PEDT001_standardized_and_validated_and_domain4 union all select * from errors_PEDT001_standardized_and_validated_and_domain5 union all select * from errors_PEDT001_standardized_and_validated_and_domain6 union all select * from errors_PEDT001_standardized_and_validated_and_domain7 union all select * from errors_PEDT001_standardized_and_validated_and_domain8 union all select * from errors_PEDT001_standardized_and_validated_and_domain9 union all select * from errors_PEDT001_standardized_and_validated_and_domain10 union all select * from errors_PEDT001_standardized_and_validated_and_domain11 union all select * from errors_PEDT001_standardized_and_validated_and_domain12 union all select * from errors_PEDT001_standardized_and_validated_and_domain13 union all select * from errors_PEDT001_standardized_and_validated_and_domain14 union all select * from errors_PEDT001_standardized_and_validated_and_domain15 union all select * from errors_PEDT001_standardized_and_validated_and_domain16 union all select * from errors_PEDT001_standardized_and_validated_and_domain17 union all select * from errors_PEDT001_standardized_and_validated_and_domain18 union all select * from errors_PEDT001_standardized_and_validated_and_domain19 union all select * from errors_PEDT001_standardized_and_validated_and_domain20 union all select * from errors_PEDT001_standardized_and_validated_and_domain21 union all select * from errors_PEDT001_standardized_and_validated_and_domain22 union all select * from errors_PEDT001_standardized_and_validated_and_domain23 union all select * from errors_PEDT001_standardized_and_validated_and_domain24 union all select * from errors_PEDT001_standardized_and_validated_and_domain25 union all select * from errors_PEDT001_standardized_and_validated_and_domain26 union all select * from errors_PEDT001_standardized_and_validated_and_domain27 union all select * from errors_PEDT001_standardized_and_validated_and_domain28"
+				}
+			]
+		}
+	]
+}

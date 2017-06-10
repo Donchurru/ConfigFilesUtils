@@ -1,0 +1,248 @@
+{
+  "graph": {
+    "label": "PEDT024",
+    "nodes": [
+      {
+        "id": "0",
+        "type": "Sql",
+        "label": "PEDT024",
+        "metadata": {
+          "tableName": "PEDT024",
+          "fields": [
+            "*"
+          ],
+          "filters": [],
+          "matchers": []
+        }
+      },
+      {
+        "id": "1",
+        "type": "Actor",
+        "label": "Mandatory",
+        "metadata": {
+          "type": "Validation",
+          "validations": [
+            {
+              "type": "Mandatory",
+              "fieldName": "COD_GPO_ECON",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "TXT_GPO_ECON",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ALTA_REG",
+              "restriction": []
+            },
+            {
+              "type": "Mandatory",
+              "fieldName": "FCH_ULT_ACT_OPER",
+              "restriction": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "2",
+        "type": "SqlActor",
+        "label": "DomainValidation",
+        "metadata": {
+          "validations": [
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_ENT_FINAN_DRO ref on (base.COD_ENT = ref.COD_ENT and base.FCH_CORTE_DATOS = ref.FCH_CORTE_DATOS and base.NUM_VER_PROC = ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_ENT",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_ENT_FINAN_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_TIPO_GPO_ECON=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_SIGLA_IDIOMA='E' and ref.COD_TAB_GEN='0265'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_ACT_ESP_ORIG=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.COD_ENT=ref.COD_ENT and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where COD_SIGLA_IDIOMA='E' and COD_TAB_GEN='0304'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_CENTROS_OPER_DRO ref on (base.COD_SUC =ref.COD_CENTRO and base.COD_ENT=ref.COD_ENT and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS and base.NUM_VER_PROC=ref.NUM_VER_PROC)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CENTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_CENTROS_OPER_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_FOR_JUR=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where COD_SIGLA_IDIOMA='E' and COD_TAB_GEN='0231'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_TAB_CORP_ALTAIR_DRO ref on (base.COD_PAIS_RES_ORIG=ref.COD_CVE_REG and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where COD_SIGLA_IDIOMA='E' and COD_TAB_GEN='0112'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_REG",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_TAB_CORP_ALTAIR_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_MAE_OFICIALES_DRO ref on (base.COD_GESTOR =ref.COD_PUESTO and base.COD_ENT=ref.COD_ENT and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS)",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_PUESTO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_MAE_OFICIALES_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.NUM_VER_PROC=ref.NUM_VER_PROC and base.COD_ACT_ESP=ref.COD_CVE_RGTRO and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0001'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "sql": "Select * from PEDT024 base left join HE1_MX_CAT_INTERNO_DRO ref on (base.COD_PAIS_RES=ref.COD_CVE_RGTRO and base.NUM_VER_PROC=ref.NUM_VER_PROC and base.FCH_CORTE_DATOS=ref.FCH_CORTE_DATOS) where ref.COD_CATALOGO='0007'",
+              "actor": {
+                "id": "2.1",
+                "type": "Validation",
+                "validations": [
+                  {
+                    "type": "Mandatory",
+                    "fieldName": "REFERENCED_COD_CVE_RGTRO",
+                    "metadata": {
+                      "referenceTable": "HE1_MX_CAT_INTERNO_DRO"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "3",
+        "type": "Sql",
+        "label": "PEDT024_accepted",
+        "metadata": {
+          "tableName": "PEDT024_accepted",
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      {
+        "id": "4",
+        "type": "Table",
+        "label": "PEDT024_rejected",
+        "metadata": {
+          "tableName": "PEDT024_rejected",
+          "fields": [
+            "*"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": 0,
+        "target": 1,
+        "relation": "both"
+      }, {
+        "source": 1,
+        "target": 2,
+        "relation": "accepted"
+      }, {
+        "source": 1,
+        "target": 4,
+        "relation": "rejected"
+      }, {
+        "source": 2,
+        "target": 3,
+        "relation": "accepted"
+      }, {
+        "source": 2,
+        "target": 4,
+        "relation": "rejected"
+      }
+    ]
+  }
+}
