@@ -71,6 +71,18 @@ var onReadedJson = function (error, origenDest){
 					numLine++;
 				}
 				
+				var line999 = "";
+				for (var actId in actualTable){
+					if (actId==0){
+						line999=line999+"999"
+					}else{
+						line999=line999+",999"	
+					}
+				}
+				line999=line999+",999"
+				if (line999!=""){
+					fs.appendFileSync(fileCsvOut, "\n"+line999);
+				}
 				//console.log(tabla.name + " ----> " + JSON.stringify(nullColumns));
 				
 			}
